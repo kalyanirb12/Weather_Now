@@ -70,14 +70,14 @@ const App = () => {
   };
 
   // Function to fetch weather data
-  const fetchWeather = async () => {
-    if (!searchedLocation) return;
+  const fetchWeather = async (searchLocation) => {
+    if (!searchLocation) return;
 
     setLoading(true);
     setError(null);
 
     try {
-      const geoUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${searchedLocation}&count=1&language=en&format=json`;
+      const geoUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${searchLocation}&count=1&language=en&format=json`;
       const geoResponse = await axios.get(geoUrl);
 
       if (geoResponse.data.results && geoResponse.data.results.length > 0) {
@@ -120,13 +120,13 @@ const App = () => {
   const handleSearchClick = (e) => {
     e.preventDefault();
     if (location.trim() !== "") {
-      setSearchedLocation(location);
-      fetchWeather();
+      setSearchedLocation(location); // Update state with the new location
+      fetchWeather(location); // Directly pass the location value to fetchWeather
     }
   };
 
   useEffect(() => {
-    fetchWeather();
+    fetchWeather(searchedLocation); // Initial fetch with default location
   }, []);
 
   return (
