@@ -25,14 +25,51 @@ const App = () => {
   const [error, setError] = useState(null);
   const [country, setCountry] = useState("");
 
+  // Mapping of weather codes to descriptions
   const weatherDescriptions = {
-    // (Your weather descriptions here)
+    0: "Clear sky",
+    1: "Mainly clear",
+    2: "Partly cloudy",
+    3: "Cloudy",
+    45: "Fog",
+    48: "Depositing rime fog",
+    51: "Light drizzle",
+    53: "Moderate drizzle",
+    55: "Dense drizzle",
+    56: "Light freezing drizzle",
+    57: "Dense freezing drizzle",
+    61: "Light rain",
+    63: "Moderate rain",
+    65: "Heavy rain",
+    66: "Light freezing rain",
+    67: "Heavy freezing rain",
+    71: "Light snow",
+    73: "Moderate snow",
+    75: "Heavy snow",
+    77: "Snow grains",
+    80: "Showers of rain",
+    81: "Heavy showers of rain",
+    82: "Violent showers of rain",
+    85: "Light snow showers",
+    86: "Heavy snow showers",
+    95: "Thunderstorm",
   };
 
+  // Function to get the weather icon based on weather code
   const getWeatherIcon = (code) => {
-    // (Your weather icon logic here)
+    if (code === 0) return <IoMdSunny />;
+    if (code >= 1 && code <= 3) return <IoMdCloudy />;
+    if (code === 45 || code === 48) return <BsCloudHaze2Fill />;
+    if (code >= 51 && code <= 57) return <BsCloudDrizzleFill />;
+    if (code >= 61 && code <= 67) return <IoMdRainy />;
+    if (code >= 71 && code <= 77) return <IoMdSnow />;
+    if (code >= 80 && code <= 82) return <IoMdRainy />;
+    if (code === 85 || code === 86) return <IoMdSnow />;
+    if (code === 95) return <IoMdThunderstorm />;
+    return <IoMdCloudy />;
   };
 
+  // Function to fetch weather data
   const fetchWeather = async () => {
     if (!searchedLocation) return;
 
@@ -75,21 +112,22 @@ const App = () => {
     }
   };
 
+  const currentDate = new Date();
+  const day = currentDate.getDate();
+  const month = currentDate.toLocaleString("default", { month: "long" });
+  const year = currentDate.getFullYear();
+
   const handleSearchClick = (e) => {
     e.preventDefault();
     if (location.trim() !== "") {
       setSearchedLocation(location);
+      fetchWeather();
     }
   };
 
   useEffect(() => {
     fetchWeather();
-  }, [searchedLocation]);
-
-  const currentDate = new Date();
-  const day = currentDate.getDate();
-  const month = currentDate.toLocaleString("default", { month: "long" });
-  const year = currentDate.getFullYear();
+  }, []);
 
   return (
     <div className="w-full h-screen bg-gradientBg bg-no-repeat bg-cover bg-center flex flex-col items-center justify-center px-4 lg:px-0">
@@ -128,34 +166,36 @@ const App = () => {
             </div>
           </div>
         ) : weatherData ? (
-          <div className="flex items-center gap-x-5">
-            <div className="text-[87px]">
-              {getWeatherIcon(weatherData.weatherCode)}
-            </div>
-            <div className="flex flex-col">
-              <div className="text-xl">
-                {month} {day}, {year}
+          <>
+            <div className="flex items-center gap-x-5">
+              <div className="text-[87px]">
+                {getWeatherIcon(weatherData.weatherCode)}
               </div>
-              <div className="text-2xl font-semibold">
-                {searchedLocation}, {country}
+
+              <div className="flex flex-col">
+                <div className="text-xl">
+                  {month} {day}, {year}
+                </div>
+                <div className="text-2xl font-semibold">
+                  {searchedLocation}, {country}
+                </div>
               </div>
             </div>
-          </div>
+
+            <div className="my-20">
+              <div className="flex justify-center items-center">
+                <div className="text-[44px] leading-none font-light">
+                  {weatherData.temperature}°C
+                </div>
+              </div>
+
+              <div className="capitalize text-center mt-4">
+                {weatherData.description}
+              </div>
+            </div>
+          </>
         ) : (
           <p>Enter a location to get weather information.</p>
-        )}
-
-        {weatherData && (
-          <div className="my-20">
-            <div className="flex justify-center items-center">
-              <div className="text-[44px] leading-none font-light">
-                {weatherData.temperature}°C
-              </div>
-            </div>
-            <div className="capitalize text-center">
-              {weatherData.description}
-            </div>
-          </div>
         )}
 
         {weatherData && (
